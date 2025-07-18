@@ -11,6 +11,8 @@ def extrair_recursos(df):
 
     # Hora em minutos
     df['minuto'] = pd.to_datetime(df['horario'], format='%H:%M').dt.minute
-df['hora'] = pd.to_datetime(df['horario'], format='%H:%M').dt.hour
-df['momento'] = df['hora'].apply(lambda h: 'madrugada' if h < 6 else 'manha' if h < 12 else 'tarde' if h < 18 else 'noite')
-df['momento_cod'] = LabelEncoder().fit_transform(df['momento'])
+    df['hora'] = pd.to_datetime(df['horario'], format='%H:%M').dt.hour
+    df['momento'] = df['hora'].apply(lambda h: 'madrugada' if h < 6 else 'manha' if h < 12 else 'tarde' if h < 18 else 'noite')
+    df['momento_cod'] = LabelEncoder().fit_transform(df['momento'])
+
+    return df
