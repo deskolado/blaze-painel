@@ -1,0 +1,31 @@
+body {
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    text-align: center;
+}
+.container {
+    max-width: 500px;
+    margin: auto;
+}
+input[type="file"], button {
+    margin-top: 10px;
+}
+button {
+    background: #e50914;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.resultado {
+    margin-top: 20px;
+    background: #222;
+    padding: 15px;
+    border-radius: 5px;
+}
+.erro {
+    color: red;
+}
