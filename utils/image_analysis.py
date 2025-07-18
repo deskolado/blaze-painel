@@ -16,7 +16,16 @@ def extrair_dados_da_imagem(filepath):
     return dados[::-1]
 
 def analisar_imagem_e_gerar_sinal(filepath):
-    dados = extrair_dados_da_imagem(filepath)
+    try:
+    dados = extrair_dados_da_imagem(image_path)
+except Exception as e:
+    return {
+        "erro": f"Erro ao extrair dados da imagem: {str(e)}",
+        "cor": "Erro",
+        "branco": "Erro",
+        "assertividade": 0.0
+    }
+
 
     # Armazena para treino
     df = pd.DataFrame(dados)
