@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Painel Blaze IA</title>
+    <title>Painel Blaze com IA</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>Envie o print do histórico</h1>
+    <h1>Enviar print do histórico Blaze</h1>
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="imagem" required>
         <button type="submit">Analisar</button>
@@ -13,9 +13,9 @@
 
     {% if resultado %}
         <h2>Resultado</h2>
-        <p>Cor: {{ resultado.cor }}</p>
-        <p>Branco: {{ resultado.branco }}</p>
-        <p>Assertividade: {{ resultado.assertividade }}%</p>
+        <p><strong>Cor Prevista:</strong> {{ resultado.cor }}</p>
+        <p><strong>Branco?</strong> {{ resultado.branco }}</p>
+        <p><strong>Assertividade:</strong> {{ resultado.assertividade }}%</p>
         {% if resultado.erro %}
             <p style="color:red;">Erro: {{ resultado.erro }}</p>
         {% endif %}
