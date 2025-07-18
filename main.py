@@ -11,9 +11,7 @@ def index():
         imagem = request.files["imagem"]
         caminho = os.path.join("static", "upload.png")
         imagem.save(caminho)
-
         resultado = analisar_imagem_e_gerar_sinal(caminho)
-
     return render_template("index.html", resultado=resultado)
 
 if __name__ == "__main__":
