@@ -1,31 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Painel de Sinais Blaze com IA</title>
+    <title>Painel Blaze IA</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Painel de Sinais - Blaze Double (IA)</h1>
-        <form method="POST" enctype="multipart/form-data">
-            <label>Envie a imagem com os resultados:</label><br>
-            <input type="file" name="imagem" accept="image/*" required>
-            <button type="submit">Analisar</button>
-        </form>
-        {% if resultado %}
-            <div class="resultado">
-                {% if resultado.erro %}
-                    <p class="erro">{{ resultado.erro }}</p>
-                {% else %}
-                    <p><strong>Horário da Entrada:</strong> {{ resultado.horario }}</p>
-                    <p><strong>Previsão de Cor:</strong> {{ resultado.cor }}</p>
-                    <p><strong>Previsão de Branco:</strong> {{ resultado.branco }}</p>
-                    <p><strong>Chance de Acerto:</strong> {{ resultado.assertividade }}%</p>
-                    <p><strong>Status do Sinal:</strong> {{ resultado.status }}</p>
-                {% endif %}
-            </div>
+    <h1>Envie o print do histórico</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="imagem" required>
+        <button type="submit">Analisar</button>
+    </form>
+
+    {% if resultado %}
+        <h2>Resultado</h2>
+        <p>Cor: {{ resultado.cor }}</p>
+        <p>Branco: {{ resultado.branco }}</p>
+        <p>Assertividade: {{ resultado.assertividade }}%</p>
+        {% if resultado.erro %}
+            <p style="color:red;">Erro: {{ resultado.erro }}</p>
         {% endif %}
-    </div>
+    {% endif %}
 </body>
 </html>
