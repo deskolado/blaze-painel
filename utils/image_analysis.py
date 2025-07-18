@@ -1,31 +1,29 @@
-import cv2
 import pytesseract
-import re
-from model.trainer import treinar_modelo
+import cv2
+import os
 from model.predictor import prever_sinal
 from utils.storage import salvar_dados
+from model.trainer import treinar_modelo
+import pandas as pd
 
-def extrair_dados_da_imagem(image_path):
-    imagem = cv2.imread(image_path)
-    imagem_rgb = cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB)
-    texto = pytesseract.image_to_string(imagem_rgb)
+def extrair_dados_da_imagem(caminho):
+    imagem = cv2.imread(caminho)
+    texto = pytesseract.image_to_string(imagem)
 
-    padrao = r"(\d{2}:\d{2})\s+(\d+)\s+(vermelho|preto|branco)"
-    encontrados = re.findall(padrao, texto.lower())
-
+    linhas = texto.split('\n')
     dados = []
-    for horario, numero, cor in encontrados:
-        dados.append({
-            "horario": horario,
-            "numero": int(numero),
-            "cor": cor
-        })
-
+    for linha in linhas:
+        if "-" in linha and any(c in linha for c in ['V', 'P', 'B']):
+            partes = linha.strip().split()
+            if len(partes) >= 2:
+                horario = partes[0]
+                cor = partes[1]
+                dados.append((horario, cor))
     return dados
 
-def analisar_imagem_e_gerar_sinal(image_path):
+def analisar_imagem_e_gerar_sinal(caminho_imagem):
     try:
-        dados = extrair_dados_da_imagem(image_path)
+        dados = extrair_dados_da_imagem(caminho_imagem)
     except Exception as e:
         return {
             "erro": f"Erro ao extrair dados da imagem: {str(e)}",
@@ -34,14 +32,12 @@ def analisar_imagem_e_gerar_sinal(image_path):
             "assertividade": 0.0
         }
 
-    if not dados or len(dados) < 20:
-        return {
-            "erro": "Imagem com poucos dados. Envie uma imagem com pelo menos 20 resultados.",
-            "cor": "Indefinido",
-            "branco": "Indefinido",
-            "assertividade": 0.0
-        }
+    df = pd.DataFrame(dados, columns=["horario", "cor"])
+    if len(df) < 10:
+        return {"erro": "Dados insuficientes para análise."}
 
-    salvar_dados(dados)
+    df.to_csv("model/dataset.csv", index=False)
+    salvar_dados(df)
     treinar_modelo()
-    return prever_sinal(dados)
+
+    return prever_sinal()
