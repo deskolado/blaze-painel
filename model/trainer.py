@@ -9,7 +9,6 @@ def extrair_recursos(df):
     df = df.copy()
     df['cor_cod'] = LabelEncoder().fit_transform(df['cor'])
 
-    # Hora em minutos
     df['minuto'] = pd.to_datetime(df['horario'], format='%H:%M').dt.minute
     df['hora'] = pd.to_datetime(df['horario'], format='%H:%M').dt.hour
     df['momento'] = df['hora'].apply(
@@ -27,7 +26,7 @@ def extrair_recursos(df):
     return df
 
 def treinar_modelo():
-    if not os.path.exists("model/dataset.csv"):
+    if not os.path.exists("model/dataset.csv") or len(pd.read_csv("model/dataset.csv")) < 10:
         return
 
     df = pd.read_csv("model/dataset.csv")
@@ -40,4 +39,12 @@ def treinar_modelo():
     y_cor = df['cor_cod']
     y_branco = df['cor'].apply(lambda x: 1 if x == 'branco' else 0)
 
-    X_train, _, y_trai_
+    X_train, _, y_train_cor, y_train_branco = train_test_split(X, y_cor, test_size=0.2)
+
+    modelo_cor = GradientBoostingClassifier()
+    modelo_branco = GradientBoostingClassifier()
+
+    modelo_cor.fit(X_train, y_train_cor)
+    modelo_branco.fit(X_train, y_train_branco)
+
+    joblib.dump((modelo_cor, modelo_branco), 'model/modelo.pkl')
