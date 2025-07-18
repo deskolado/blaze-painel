@@ -1,48 +1,47 @@
-import pandas as pd
-import os
-from datetime import datetime, timedelta
-from model.predictor import prever_sinal
+import cv2
+import pytesseract
+import re
 from model.trainer import treinar_modelo
+from model.predictor import prever_sinal
+from utils.storage import salvar_dados
 
-def extrair_dados_da_imagem(filepath):
-    # Simulado (substitua por OCR futuro)
+def extrair_dados_da_imagem(image_path):
+    imagem = cv2.imread(image_path)
+    imagem_rgb = cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB)
+    texto = pytesseract.image_to_string(imagem_rgb)
+
+    padrao = r"(\d{2}:\d{2})\s+(\d+)\s+(vermelho|preto|branco)"
+    encontrados = re.findall(padrao, texto.lower())
+
     dados = []
-    for i in range(40):
+    for horario, numero, cor in encontrados:
         dados.append({
-            "horario": (datetime.now() - timedelta(minutes=i)).strftime("%H:%M"),
-            "numero": int(14 * abs((i*17 % 20) % 1)),  # pseudo aleatório
-            "cor": ["vermelho", "preto", "branco"][i % 3]
+            "horario": horario,
+            "numero": int(numero),
+            "cor": cor
         })
-    return dados[::-1]
 
-def analisar_imagem_e_gerar_sinal(filepath):
+    return dados
+
+def analisar_imagem_e_gerar_sinal(image_path):
     try:
-    dados = extrair_dados_da_imagem(image_path)
-except Exception as e:
-    return {
-        "erro": f"Erro ao extrair dados da imagem: {str(e)}",
-        "cor": "Erro",
-        "branco": "Erro",
-        "assertividade": 0.0
-    }
+        dados = extrair_dados_da_imagem(image_path)
+    except Exception as e:
+        return {
+            "erro": f"Erro ao extrair dados da imagem: {str(e)}",
+            "cor": "Erro",
+            "branco": "Erro",
+            "assertividade": 0.0
+        }
 
+    if not dados or len(dados) < 20:
+        return {
+            "erro": "Imagem com poucos dados. Envie uma imagem com pelo menos 20 resultados.",
+            "cor": "Indefinido",
+            "branco": "Indefinido",
+            "assertividade": 0.0
+        }
 
-    # Armazena para treino
-    df = pd.DataFrame(dados)
-    if not os.path.exists("model/dataset.csv"):
-        df.to_csv("model/dataset.csv", index=False)
-    else:
-        df.to_csv("model/dataset.csv", mode='a', header=False, index=False)
-
+    salvar_dados(dados)
     treinar_modelo()
-
-    ultimos = dados[-20:]
-    previsao = prever_sinal(ultimos)
-
-    return {
-        "cor": previsao["cor"],
-        "branco": previsao["branco"],
-        "assertividade": previsao["assertividade"],
-        "status": "Entrada gerada com IA",
-        "horario": (datetime.now() + timedelta(minutes=2)).strftime("%H:%M")
-    }
+    return prever_sinal(dados)
